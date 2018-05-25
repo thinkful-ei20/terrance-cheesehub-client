@@ -1,23 +1,38 @@
 
-const FETCH_CHEESES_REQUEST = 'FETCH_CHEESES_REQUEST';
-const fetchCheesesRequest = () => {
+import { API_BASE_URL } from '../config';
+
+export const FETCH_CHEESES_REQUEST = 'FETCH_CHEESES_REQUEST';
+export const fetchCheesesRequest = () => {
   type: FETCH_CHEESES_REQUEST
 };
 
-const FETCH_CHEESES_SUCESS = 'FETCH_CHEESES_SUCESS';
-const fetchCheesesSuccess = (cheeses) => {
+export const FETCH_CHEESES_SUCESS = 'FETCH_CHEESES_SUCESS';
+export const fetchCheesesSuccess = (cheeses) => {
   type: FETCH_CHEESES_SUCESS,
   cheeses
 };
 
-const FETCH_CHEESES_ERROR = 'FETCH_CHEESES_ERROR';
-const fetchCheesesError = () => {
+export const FETCH_CHEESES_ERROR = 'FETCH_CHEESES_ERROR';
+export const fetchCheesesError = () => {
   type: FETCH_CHEESES_ERROR
 };
 
-const fetchCheeses = () => (dispatch) => {
-  fetch('http://localhost:8080/api/cheese')
-  .then(res => res.json())
-  .then(cheeses => dispatch(fetchCheesesSuccess(cheeses)))
-  .catch(err => console.log(err));
+export const fetchCheeses = () => (dispatch) => {
+  dispatch(fetchCheesesRequest());
+  return (
+    fetch(`${API_BASE_URL}/api/cheeses`)
+    .then( res => {
+      if (!res.ok) {
+        console.log('err with server response');
+        throw new Error(res.statusText);
+      }
+      return res.json();
+    })
+    .then(cheeses => {
+      dispatch(fetchCheesesSuccess(cheeses));
+    })
+    .catch(err => {
+      dispatch(fetchCheeses(err))
+    })
+  );
 };
